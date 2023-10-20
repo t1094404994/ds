@@ -79,7 +79,7 @@ export default class BinNode<T> {
     this.parent = parent;
     this.lChild = null;
     this.rChild = null;
-    this.height = 0;
+    this.height = -1;
     this.color = RBColor.RB_RED;
   }
 

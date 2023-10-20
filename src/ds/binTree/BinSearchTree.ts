@@ -1,5 +1,6 @@
 /**
  * 二叉搜索树
+ * 可以存在重复的key
  */
 import BinTree from "./BinTree";
 import BinNode, { HasLChild, HasRChild, IsLChild, IsRChild } from "./BinNode";
@@ -29,18 +30,22 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
   // //对x及其父亲,祖父做统一旋转调整
   // protected rotateAt(x: BinNode<Entry<K>>):void
   //查找
-  public search(e: Key): BinNode<Entry<K>> | null {
+  public search(e: Key, equalReturn: boolean = true): BinNode<Entry<K>> | null {
     this._hot = null;
-    return this.searchIn(this._root, e);
+    return this.searchIn(this._root, e, equalReturn);
   }
 
   //在以v为根的BST子树中查找关键码e
   public searchIn(
     v: BinNode<Entry<K>> | null,
-    e: Key
+    e: Key,
+    equalReturn: boolean = true
   ): BinNode<Entry<K>> | null {
     while (1) {
-      if (!v || BinNode.Equal(e, v.data.key, this.comparerEqual)) {
+      if (
+        !v ||
+        (equalReturn && BinNode.Equal(e, v.data.key, this.comparerEqual))
+      ) {
         break;
       }
       this._hot = v;
@@ -52,10 +57,7 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
   //插入
   public insert(e: Entry<K>): BinNode<Entry<K>> {
     //搜索key并设置_hot
-    const x = this.search(e.key);
-    if (x) {
-      return x;
-    }
+    this.search(e.key, false);
     if (!this._root) {
       this.insertAsRoot(e);
       return this._root!;

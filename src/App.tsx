@@ -8,34 +8,29 @@ import Entry from "./ds/entry/Entry";
 //测试树
 function testTree() {
   const tree = new BinSearchTree<string>();
-  const removeList: Array<number> = [];
   const keyList: Array<number> = [];
-  for (let i = 0; i < 300; i++) {
-    const key = Math.round(Math.random() * 1000);
+  console.time("treebuild");
+  for (let i = 0; i < 1000000; i++) {
+    const key = Math.round(Math.random() * 100000000);
     tree.insert(new Entry(key, `0000${i}`));
     keyList.push(key);
-    if (i & 1) {
-      removeList.push(key);
-    }
   }
-  let size = 0;
-  tree.travIn((e) => {
-    size++;
-    console.log(e.data.key);
-  });
-  console.log("size", size);
-  console.log("treeSize", tree.size);
-  console.log("移除", new Set(removeList));
-  removeList.forEach((key) => {
-    tree.remove(key);
-  });
-  size = 0;
-  tree.travIn((e) => {
-    size++;
-    console.log("移除后", e.data.key);
-  });
-  console.log("size", size);
-  console.log("treesize", tree.size);
+  console.timeEnd("treebuild");
+  console.time("treesearch");
+  const x = tree.search(500000);
+  console.log(x);
+  console.timeEnd("treesearch");
+  const arr: Array<Entry<string>> = [];
+  console.time("arrbuild");
+  for (let i = 0; i < 1000000; i++) {
+    const key = Math.round(Math.random() * 100000000);
+    arr.push(new Entry(key, `0000${i}`));
+  }
+  console.timeEnd("arrbuild");
+  console.time("arrsearch");
+  const y = arr.find((item) => item.key === 500000);
+  console.log(y);
+  console.timeEnd("arrsearch");
 }
 
 function App() {

@@ -1,4 +1,13 @@
-import BinNode, { IsLChild, IsRChild, stature } from "./BinNode";
+import Queue from "../queue/Queue";
+import BinNode, {
+  HasLChild,
+  HasRChild,
+  IsLChild,
+  IsRChild,
+  stature,
+} from "./BinNode";
+
+type VSTFunction<T> = (node: BinNode<T>) => void;
 /**
  * 二叉树
  */
@@ -94,35 +103,200 @@ export default class BinTree<T> {
     return n;
   }
 
-  //层次遍历
+  //取节点的直接后继 (中序遍历意义下)
+  public succ(s: BinNode<T>): BinNode<T> | null {
+    //如果有右孩子,则直接后继必在右子树中
+    if (s.rChild) {
+      s = s.rChild;
+      while (s.lChild) {
+        s = s.lChild;
+      }
+    } else {
+      //否则,直接后继应是"将s包含于其左子树中的最低祖先"
+      while (IsRChild(s)) s = s.parent!;
+      s = s.parent!;
+    }
+    return s;
+  }
+  //取节点的直接前驱 (中序遍历意义下)
+  public pred(s: BinNode<T>): BinNode<T> | null {
+    //如果有左孩子,则直接前驱必在左子树中
+    if (s.lChild) {
+      s = s.lChild;
+      while (s.rChild) {
+        s = s.rChild;
+      }
+    } else {
+      //否则,直接前驱应是"将s包含于其右子树中的最低祖先"
+      while (IsLChild(s)) s = s.parent!;
+      s = s.parent!;
+    }
+    return s;
+  }
+
+  //层次遍历整个树
   public travLevel(visit: (node: BinNode<T>) => void) {
     if (this._root) {
-      this._root.travLevel(visit);
+      this.travLevelFormRoot(visit, this._root);
+    }
+  }
+  //先序遍历整个树
+  public travPre(visit: (node: BinNode<T>) => void) {
+    if (this._root) {
+      this.travPreFromRoot(this._root, visit);
+    }
+  }
+  //中序遍历整个树
+  public travIn(visit: (node: BinNode<T>) => void) {
+    if (this._root) {
+      this.travIn_I3(this._root, visit);
+    }
+  }
+  //后序遍历整个树
+  public travPost(visit: (node: BinNode<T>) => void) {
+    if (this._root) {
+      this.travPostFromRoot(this._root, visit);
+    }
+  }
+
+  //层次遍历
+  public travLevelFormRoot(VST: VSTFunction<T>, root: BinNode<T>) {
+    //队列
+    const queue: Queue<BinNode<T>> = new Queue<BinNode<T>>();
+    queue.enqueue(root);
+    while (!queue.empty()) {
+      const node = queue.dequeue()!;
+      if (node.lChild) {
+        queue.enqueue(node.lChild);
+      }
+      if (node.rChild) {
+        queue.enqueue(node.rChild);
+      }
+      //最后访问 防止dispose后找不到左右孩子
+      VST(node);
+    }
+  }
+
+  //沿左分支持续深入,直至没有左分支的节点
+  private visitAlongLeftBranch(
+    x: BinNode<T> | null,
+    VST: VSTFunction<T>,
+    stack: BinNode<T>[]
+  ) {
+    while (x) {
+      VST(x);
+      if (x.rChild) {
+        stack.push(x.rChild);
+      }
+      x = x.lChild;
     }
   }
   //先序遍历
-  public travPre(visit: (node: BinNode<T>) => void) {
-    if (this._root) {
-      this._root.travPre(this._root, visit);
+  public travPreFromRoot(x: BinNode<T>, VST: VSTFunction<T>) {
+    const stack: Array<BinNode<T>> = [];
+    while (x) {
+      this.visitAlongLeftBranch(x, VST, stack);
+      if (stack.length === 0) {
+        break;
+      }
+      x = stack.pop()!;
     }
   }
-  //中序遍历
-  public travIn(visit: (node: BinNode<T>) => void) {
-    if (this._root) {
-      this._root.travIn_I3(this._root, visit);
+
+  //沿左分支不断深入,直至没有左分支的节点
+  private goAlongLeftBranch(x: BinNode<T> | null, stack: BinNode<T>[]) {
+    while (x) {
+      stack.push(x);
+      x = x.lChild;
     }
   }
-  //后序遍历
-  public travPost(visit: (node: BinNode<T>) => void) {
-    if (this._root) {
-      this._root.travPost(this._root, visit);
+  //中序遍历 V1
+  public travIn_I1(_x: BinNode<T>, VST: VSTFunction<T>) {
+    const stack: Array<BinNode<T>> = [];
+    let x: BinNode<T> | null = _x;
+    while (true) {
+      this.goAlongLeftBranch(x, stack);
+      if (stack.length === 0) {
+        break;
+      }
+      x = stack.pop()!;
+      VST(x);
+      x = x.rChild;
+    }
+  }
+  //中序遍历 V2
+  public travIn_I2(_x: BinNode<T>, VST: VSTFunction<T>) {
+    const stack: Array<BinNode<T>> = [];
+    let x: BinNode<T> | null = _x;
+    while (true) {
+      if (x) {
+        stack.push(x);
+        x = x.lChild;
+      } else if (stack.length) {
+        x = stack.pop()!;
+        VST(x);
+        x = x.rChild;
+      } else {
+        break;
+      }
+    }
+  }
+  //中序遍历 V3
+  public travIn_I3(_x: BinNode<T>, VST: VSTFunction<T>) {
+    let x: BinNode<T> | null = _x;
+    let backtrack = false;
+    while (true) {
+      if (!backtrack && HasLChild(x)) {
+        x = x.lChild!;
+      } else {
+        VST(x);
+        if (HasRChild(x)) {
+          x = x.rChild!;
+          backtrack = false;
+        } else {
+          if (!(x = this.succ(x))) {
+            break;
+          }
+          backtrack = true;
+        }
+      }
+    }
+  }
+
+  //在以S栈顶节点为根的子树中，找到最高左侧可见叶节点
+  private gotoHLVFL(stack: Array<BinNode<T>>) {
+    let x: BinNode<T> | null = null;
+    while ((x = stack[stack.length - 1])) {
+      if (HasLChild(x)) {
+        if (HasRChild(x)) {
+          stack.push(x.rChild!);
+        }
+        stack.push(x.lChild!);
+      } else if (x.rChild) {
+        stack.push(x.rChild);
+      }
+    }
+    stack.pop();
+  }
+  //后序遍历 TODO 有问题
+  public travPostFromRoot(x: BinNode<T>, VST: VSTFunction<T>) {
+    const stack: Array<BinNode<T>> = [];
+    if (x) {
+      stack.push(x);
+    }
+    while (stack.length) {
+      if (stack[stack.length - 1] !== x.parent) {
+        this.gotoHLVFL(stack);
+      }
+      x = stack.pop()!;
+      VST(x);
     }
   }
 
   public dispose() {
     this._size = 0;
     if (this._root) {
-      this._root.travLevel((node) => {
+      this.travLevel((node) => {
         node.dispose();
       });
     }

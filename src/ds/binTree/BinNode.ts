@@ -1,5 +1,5 @@
 type CompareFunction<T> = (a: T, b: T) => boolean;
-enum RBColor {
+export enum RBColor {
   RB_RED,
   RB_BLACK,
 }
@@ -70,12 +70,18 @@ export default class BinNode<T> {
   public height: number;
   //颜色
   public color: RBColor;
-  constructor(data: T, parent: BinNode<T> | null = null) {
+  constructor(
+    data: T,
+    parent: BinNode<T> | null = null,
+    lChild: BinNode<T> | null = null,
+    rChild: BinNode<T> | null = null,
+    height: number = 0
+  ) {
     this.data = data;
     this.parent = parent;
-    this.lChild = null;
-    this.rChild = null;
-    this.height = 0;
+    this.lChild = lChild;
+    this.rChild = rChild;
+    this.height = height;
     this.color = RBColor.RB_RED;
   }
 

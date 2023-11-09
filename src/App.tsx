@@ -8,47 +8,30 @@ import Entry from "./ds/entry/Entry";
 //测试树
 function testTree() {
   const tree = new BinSearchTree<string>();
-  for (let i = 0; i < 20; i++) {
-    const key = Math.round(Math.random() * 10000);
+  console.time("treebuild");
+  for (let i = 0; i < 1000000; i++) {
+    const key = Math.round(Math.random() * 100000000);
     tree.insert(new Entry(key, `0000${i}`));
   }
-  tree.travLevel((node) => {
-    console.log("层次", node.data.key);
-  });
-  tree.travIn((node) => {
-    console.log("中序", node.data.key);
-  });
-  tree.travPre((node) => {
-    console.log("先序", node.data.key);
-  });
-  tree.travPost((node) => {
-    console.log("后序", node.data.key);
-  });
-  // console.time("treebuild");
-  // for (let i = 0; i < 1000000; i++) {
-  //   const key = Math.round(Math.random() * 100000000);
-  //   tree.insert(new Entry(key, `0000${i}`));
-  //   keyList.push(key);
-  // }
-  // console.timeEnd("treebuild");
-  // console.time("treesearch");
-  // for (let i = 0; i < 10000; i++) {
-  //   tree.search(Math.round(Math.random() * 100000000));
-  // }
-  // console.timeEnd("treesearch");
-  // const arr: Array<Entry<string>> = [];
-  // console.time("arrbuild");
-  // for (let i = 0; i < 1000000; i++) {
-  //   const key = Math.round(Math.random() * 100000000);
-  //   arr.push(new Entry(key, `0000${i}`));
-  // }
-  // console.timeEnd("arrbuild");
-  // console.time("arrsearch");
-  // for (let i = 0; i < 10000; i++) {
-  //   const key = Math.round(Math.random() * 100000000);
-  //   arr.find((item) => item.key === key);
-  // }
-  // console.timeEnd("arrsearch");
+  console.timeEnd("treebuild");
+  console.time("treesearch");
+  for (let i = 0; i < 10000; i++) {
+    tree.search(Math.round(Math.random() * 100000000));
+  }
+  console.timeEnd("treesearch");
+  const arr: Array<Entry<string>> = [];
+  console.time("arrbuild");
+  for (let i = 0; i < 1000000; i++) {
+    const key = Math.round(Math.random() * 100000000);
+    arr.push(new Entry(key, `0000${i}`));
+  }
+  console.timeEnd("arrbuild");
+  console.time("arrsearch");
+  for (let i = 0; i < 10000; i++) {
+    const key = Math.round(Math.random() * 100000000);
+    arr.find((item) => item.key === key);
+  }
+  console.timeEnd("arrsearch");
 }
 
 function App() {

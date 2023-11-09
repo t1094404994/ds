@@ -264,7 +264,7 @@ export default class BinTree<T> {
   }
 
   //在以S栈顶节点为根的子树中，找到最高左侧可见叶节点
-  private gotoHLVFL(stack: Array<BinNode<T>>) {
+  private gotoHLVFL(stack: Array<BinNode<T> | null>) {
     let x: BinNode<T> | null = null;
     while ((x = stack[stack.length - 1])) {
       if (HasLChild(x)) {
@@ -272,13 +272,13 @@ export default class BinTree<T> {
           stack.push(x.rChild!);
         }
         stack.push(x.lChild!);
-      } else if (x.rChild) {
+      } else {
         stack.push(x.rChild);
       }
     }
     stack.pop();
   }
-  //后序遍历 TODO 有问题
+  //后序遍历
   public travPostFromRoot(x: BinNode<T>, VST: VSTFunction<T>) {
     const stack: Array<BinNode<T>> = [];
     if (x) {

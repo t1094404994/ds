@@ -98,7 +98,7 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
       succ = x = x.lChild!;
     } else {
       //随机使用前驱或后继 消除移除过程中的偏斜
-      w = Math.random() ? this.succ(w)! : this.pred(w)!;
+      w = Math.random() > 0.5 ? this.succ(w)! : this.pred(w)!;
       const warp = w.data;
       w.data = x.data;
       x.data = warp;

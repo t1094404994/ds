@@ -4,7 +4,9 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import BinSearchTree from "./ds/binTree/BinSearchTree";
 import Entry from "./ds/entry/Entry";
-
+//Calculation
+import Calculation from "./Calculation";
+import FlowChart from "./FlowChart";
 //测试树
 function testTree() {
   const tree = new BinSearchTree<string>();
@@ -59,6 +61,8 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <Calculation />
+      <FlowChart />
     </>
   );
 }

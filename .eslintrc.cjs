@@ -17,5 +17,7 @@ module.exports = {
     "no-constant-condition": "off",
     "@typescript-eslint/no-this-alias": "off",
     "no-cond-assign": "off",
+    "no-case-declarations": "off",
+    "no-useless-escape": "off",
   },
 };

@@ -27,11 +27,12 @@ function BlackUpdateHeight<T>(x: BinNode<Entry<T>>) {
 export default class BlackRedTree<T> extends BinSearchTree<T> {
   //双红修正
   private solveDoubleRed(x: BinNode<Entry<T>>): void {
-    //
+    console.log("solveDoubleRed", x);
   }
   //双黑修正
   private solveDoubleBlack(x: BinNode<Entry<T>>): void {
-    //
+    console.log("solveDoubleBlack", x);
+    BlackUpdateHeight(x);
   }
 
   //更新高度

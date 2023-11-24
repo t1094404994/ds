@@ -103,31 +103,33 @@ function App() {
   };
   return (
     <>
-      <span>x</span>
-      <input value={xPotion} onChange={(e) => setXPotion(+e.target.value)} />
-      <span>y</span>
-      <input value={yPotion} onChange={(e) => setYPotion(+e.target.value)} />
-      <button onClick={onAddNode(VertexType.START)}>新增开始节点</button>
-      <button onClick={onAddNode(VertexType.END)}>新增结束节点</button>
-      <button onClick={onAddNode(VertexType.NODE)}>新增中间节点</button>
-      <button onClick={onAddNode(VertexType.BRANCH)}>新增结束节点</button>
-      <div>canvas区域</div>
-      <button onClick={onRender}>Render</button>
-      <button onClick={onDelete}>删除节点</button>
-      <button onClick={removeEvents}>清除事件</button>
-      <div style={{ position: "relative" }}>
-        <canvas ref={canvasBgRef} width={2000} height={3600}></canvas>
-        <canvas
-          ref={canvasDyRef}
-          width={2000}
-          height={3600}
-          style={{
-            position: "absolute",
-            left: "0",
-            top: "0",
-            pointerEvents: inOpertion ? "auto" : "none",
-          }}
-        ></canvas>
+      <div>
+        <span>x</span>
+        <input value={xPotion} onChange={(e) => setXPotion(+e.target.value)} />
+        <span>y</span>
+        <input value={yPotion} onChange={(e) => setYPotion(+e.target.value)} />
+        <button onClick={onAddNode(VertexType.START)}>新增开始节点</button>
+        <button onClick={onAddNode(VertexType.END)}>新增结束节点</button>
+        <button onClick={onAddNode(VertexType.NODE)}>新增中间节点</button>
+        <button onClick={onAddNode(VertexType.BRANCH)}>新增分支节点</button>
+        <div>canvas区域</div>
+        <button onClick={onRender}>Render</button>
+        <button onClick={onDelete}>删除节点</button>
+        <button onClick={removeEvents}>清除事件</button>
+        <div style={{ position: "relative" }}>
+          <canvas ref={canvasBgRef} width={2000} height={3600}></canvas>
+          <canvas
+            ref={canvasDyRef}
+            width={2000}
+            height={3600}
+            style={{
+              position: "absolute",
+              left: "0",
+              top: "0",
+              pointerEvents: inOpertion ? "auto" : "none",
+            }}
+          ></canvas>
+        </div>
       </div>
     </>
   );

@@ -14,12 +14,14 @@ function App() {
   };
   return (
     <>
-      <input
-        value={calculation}
-        onChange={(e) => setCalculation(e.target.value)}
-      />
-      <button onClick={onCalculation}>计算</button>
-      <span>值{result}</span>
+      <div>
+        <input
+          value={calculation}
+          onChange={(e) => setCalculation(e.target.value)}
+        />
+        <button onClick={onCalculation}>计算</button>
+        <span>值{result}</span>
+      </div>
     </>
   );
 }

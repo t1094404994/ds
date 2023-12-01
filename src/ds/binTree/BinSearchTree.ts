@@ -3,15 +3,80 @@
  * 可以存在重复的key
  */
 import BinTree from "./BinTree";
-import BinNode, { HasLChild, HasRChild, IsLChild, IsRChild } from "./BinNode";
+import BinNode, {
+  CutParentTo,
+  HasLChild,
+  HasRChild,
+  IsLChild,
+  IsRChild,
+  ReplaceParent,
+} from "./BinNode";
 import Entry, { K as Key } from "../entry/Entry";
 
 export default class BinSearchTree<K> extends BinTree<Entry<K>> {
   //search最后访问的非空节点
   protected _hot: BinNode<Entry<K>> | null = null;
   //按照3+4结构,联接3个节点及4棵子树
-  protected connect34() {
-    //
+  protected connect34(
+    a: BinNode<Entry<K>>,
+    b: BinNode<Entry<K>>,
+    c: BinNode<Entry<K>>,
+    t0: BinNode<Entry<K>> | null,
+    t1: BinNode<Entry<K>> | null,
+    t2: BinNode<Entry<K>> | null,
+    t3: BinNode<Entry<K>> | null
+  ): BinNode<Entry<K>> {
+    a.lChild = t0;
+    if (t0) {
+      CutParentTo(t0);
+      t0.parent = a;
+    }
+    a.rChild = t1;
+    if (t1) {
+      CutParentTo(t1);
+      t1.parent = a;
+    }
+    this.updateHeight(a);
+    c.lChild = t2;
+    if (t2) {
+      CutParentTo(t2);
+      t2.parent = c;
+    }
+    c.rChild = t3;
+    if (t3) {
+      CutParentTo(t3);
+      t3.parent = c;
+    }
+    this.updateHeight(c);
+    b.lChild = a;
+    a.parent = b;
+    b.rChild = c;
+    c.parent = b;
+    this.updateHeight(b);
+    return b;
+  }
+
+  //BST节点旋转变换统一算法
+  protected rotateAt(v: BinNode<Entry<K>>): BinNode<Entry<K>> {
+    const p = v.parent!;
+    const g = p.parent!;
+    if (IsLChild(p)) {
+      if (IsLChild(v)) {
+        ReplaceParent(p, g);
+        return this.connect34(v, p, g, v.lChild, v.rChild, p.rChild, g.rChild);
+      } else {
+        ReplaceParent(v, g);
+        return this.connect34(p, v, g, p.lChild, v.lChild, v.rChild, g.rChild);
+      }
+    } else {
+      if (IsRChild(v)) {
+        ReplaceParent(p, g);
+        return this.connect34(g, p, v, g.lChild, p.lChild, v.lChild, v.rChild);
+      } else {
+        ReplaceParent(v, g);
+        return this.connect34(g, v, p, g.lChild, v.lChild, v.rChild, p.rChild);
+      }
+    }
   }
 
   protected comparerEqual(a: Key, b: Key): boolean {
@@ -27,8 +92,6 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
     return a !== b;
   }
 
-  // //对x及其父亲,祖父做统一旋转调整
-  // protected rotateAt(x: BinNode<Entry<K>>):void
   //查找
   public search(e: Key, equalReturn: boolean = true): BinNode<Entry<K>> | null {
     this._hot = null;
@@ -85,6 +148,8 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
     this.updateHeightAbove(this._hot!);
     return true;
   }
+
+  //TODO 删除全部
 
   public removeAt(
     x: BinNode<Entry<K>>,

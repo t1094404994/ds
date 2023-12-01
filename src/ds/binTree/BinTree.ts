@@ -4,6 +4,7 @@ import BinNode, {
   HasRChild,
   IsLChild,
   IsRChild,
+  RBColor,
   stature,
 } from "./BinNode";
 
@@ -53,7 +54,7 @@ export default class BinTree<T> {
   public insertAsRoot(e: T) {
     this.dispose();
     this._size = 1;
-    this._root = new BinNode<T>(e);
+    this._root = new BinNode<T>(e, null, null, null, 0, RBColor.RB_BLACK);
   }
   //e作为x的左孩子(原无)插入
   public insertAsLC(x: BinNode<T>, e: T): BinNode<T> {

@@ -1,11 +1,10 @@
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
 // import BinSearchTree from "./ds/binTree/BinSearchTree";
 // import Entry from "./ds/entry/Entry";
 //Calculation
-import Calculation from "./Calculation";
-import FlowChart from "./FlowChart";
+import Calculation from "./views/Calculation";
+import FlowChart from "./views/FlowChart";
+import SVGCut from "./views/SVGCut";
+
 //测试树
 // function testTree() {
 //   const tree = new BinSearchTree<string>();
@@ -38,16 +37,9 @@ import FlowChart from "./FlowChart";
 function App() {
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
       <Calculation />
       <FlowChart />
+      <SVGCut />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
-import { GridConfig, VertexType } from "./util/flowChart/graph";
-import mitt from "./util/flowChart/mitt";
-import FlowChartController from "./util/flowChart/core";
+import { GridConfig, VertexType } from "../util/flowChart/graph";
+import mitt from "../util/flowChart/mitt";
+import FlowChartController from "../util/flowChart/core";
 
 let controller: FlowChartController | null = null;
 

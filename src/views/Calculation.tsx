@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { calculationExpression } from "./util/math";
+import { calculationExpression } from "../util/math";
 
 function App() {
   const [calculation, setCalculation] = useState("");

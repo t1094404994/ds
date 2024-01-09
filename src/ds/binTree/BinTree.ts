@@ -4,6 +4,7 @@ import BinNode, {
   HasRChild,
   IsLChild,
   IsRChild,
+  IsRoot,
   RBColor,
   stature,
 } from "./BinNode";
@@ -292,6 +293,28 @@ export default class BinTree<T> {
       x = stack.pop()!;
       VST(x);
     }
+  }
+
+  //替换x的父节点为p的父节点
+  replaceParent(x: BinNode<T>, p: BinNode<T>) {
+    //切除原来的父节点引用
+    if (x.parent) {
+      IsLChild(x) ? (x.parent.lChild = null) : (x.parent.rChild = null);
+    }
+    x.parent = p.parent;
+    //变更现在的父节点的引用
+    if (p.parent) {
+      if (IsLChild(p)) {
+        p.parent!.lChild = x;
+      } else {
+        p.parent!.rChild = x;
+      }
+    }
+    //如果p是根节点,则x变成新的根节点
+    if (IsRoot(p)) {
+      this._root = x;
+    }
+    p.parent = null;
   }
 
   public dispose() {

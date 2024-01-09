@@ -53,7 +53,7 @@ export function uncle<T>(x: BinNode<T>): BinNode<T> | null {
     return x.parent.parent.lChild;
   }
 }
-//切换父节点的引用
+//切断父节点的引用
 export function CutParentTo<T>(x: BinNode<T>) {
   if (IsRoot(x)) {
     return;
@@ -64,26 +64,6 @@ export function CutParentTo<T>(x: BinNode<T>) {
     x.parent!.rChild = null;
   }
   x.parent = null;
-}
-//替换x的父节点为p的父节点
-export function ReplaceParent<T>(x: BinNode<T>, p: BinNode<T>) {
-  if (IsRoot(x)) {
-    return;
-  }
-  //切除原来的父节点引用
-  if (x.parent) {
-    IsLChild(x) ? (x.parent.lChild = null) : (x.parent.rChild = null);
-  }
-  x.parent = p.parent;
-  //变更现在的父节点的引用
-  if (x.parent) {
-    if (IsLChild(x)) {
-      x.parent!.lChild = x;
-    } else {
-      x.parent!.rChild = x;
-    }
-  }
-  p.parent = null;
 }
 //理想平衡条件
 export function Balanced<T>(x: BinNode<T>): boolean {

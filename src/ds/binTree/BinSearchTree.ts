@@ -3,14 +3,7 @@
  * 可以存在重复的key
  */
 import BinTree from "./BinTree";
-import BinNode, {
-  CutParentTo,
-  HasLChild,
-  HasRChild,
-  IsLChild,
-  IsRChild,
-  ReplaceParent,
-} from "./BinNode";
+import BinNode, { HasLChild, HasRChild, IsLChild, IsRChild } from "./BinNode";
 import Entry, { K as Key } from "../entry/Entry";
 
 export default class BinSearchTree<K> extends BinTree<Entry<K>> {
@@ -26,27 +19,23 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
     t2: BinNode<Entry<K>> | null,
     t3: BinNode<Entry<K>> | null
   ): BinNode<Entry<K>> {
-    a.lChild = t0;
     if (t0) {
-      CutParentTo(t0);
       t0.parent = a;
     }
-    a.rChild = t1;
     if (t1) {
-      CutParentTo(t1);
       t1.parent = a;
     }
-    this.updateHeight(a);
-    c.lChild = t2;
     if (t2) {
-      CutParentTo(t2);
       t2.parent = c;
     }
-    c.rChild = t3;
     if (t3) {
-      CutParentTo(t3);
       t3.parent = c;
     }
+    a.lChild = t0;
+    a.rChild = t1;
+    this.updateHeight(a);
+    c.lChild = t2;
+    c.rChild = t3;
     this.updateHeight(c);
     b.lChild = a;
     a.parent = b;
@@ -62,18 +51,18 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
     const g = p.parent!;
     if (IsLChild(p)) {
       if (IsLChild(v)) {
-        ReplaceParent(p, g);
+        this.replaceParent(p, g);
         return this.connect34(v, p, g, v.lChild, v.rChild, p.rChild, g.rChild);
       } else {
-        ReplaceParent(v, g);
+        this.replaceParent(v, g);
         return this.connect34(p, v, g, p.lChild, v.lChild, v.rChild, g.rChild);
       }
     } else {
       if (IsRChild(v)) {
-        ReplaceParent(p, g);
+        this.replaceParent(p, g);
         return this.connect34(g, p, v, g.lChild, p.lChild, v.lChild, v.rChild);
       } else {
-        ReplaceParent(v, g);
+        this.replaceParent(v, g);
         return this.connect34(g, v, p, g.lChild, v.lChild, v.rChild, p.rChild);
       }
     }

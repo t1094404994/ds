@@ -11,7 +11,6 @@ import BinNode, {
   IsLChild,
   IsRoot,
   RBColor,
-  ReplaceParent,
   stature,
   uncle,
 } from "./BinNode";
@@ -38,21 +37,27 @@ function BlackUpdateHeight<T>(x: BinNode<Entry<T>>) {
 export default class BlackRedTree<T> extends BinSearchTree<T> {
   //双红修正
   private solveDoubleRed(x: BinNode<Entry<T>>): BinNode<Entry<T>> | null {
+    if (IsRoot(x)) {
+      x.color = RBColor.RB_BLACK;
+      x.height++;
+      return null;
+    }
     const p = x.parent!;
     if (IsBlack(p)) return null;
     const g = p.parent!;
     const u = uncle(x)!;
     if (IsBlack(u)) {
+      //BB-1 叔叔节点为黑色 ,根据x,p,g的中序遍历顺序,调整中间节点为黑色,两边节点为红色
       if (IsLChild(x) === IsLChild(p)) {
         p.color = RBColor.RB_BLACK;
       } else {
         x.color = RBColor.RB_BLACK;
       }
       g.color = RBColor.RB_RED;
-      const r = this.rotateAt(x);
-      ReplaceParent(r, g);
+      this.rotateAt(x);
       return null;
     } else {
+      //BB-2 叔叔节点为红色,将叔叔节点和父节点染黑,祖父节点染红
       p.color = RBColor.RB_BLACK;
       p.height++;
       u.color = RBColor.RB_BLACK;
@@ -79,7 +84,7 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
       if (t) {
         const oldColor = p.color;
         const b = this.rotateAt(t);
-        ReplaceParent(b, p);
+        this.replaceParent(b, p);
         if (HasLChild(b)) {
           b.lChild!.color = RBColor.RB_BLACK;
           this.updateHeight(b.lChild!);
@@ -107,8 +112,8 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
       //BB-3
       s.color = RBColor.RB_BLACK;
       const t = IsLChild(s) ? s.lChild : s.rChild;
-      const b = this.rotateAt(t!);
-      ReplaceParent(b, p);
+      this.rotateAt(t!);
+      // this.replaceParent(b, p);
       this._hot = p;
       this.solveDoubleBlack(r);
     }
@@ -122,7 +127,7 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
 
   //插入(重写)
   public insert(e: Entry<T>): BinNode<Entry<T>> {
-    this.search(e.key);
+    this.search(e.key, false);
     if (!this._root) {
       this.insertAsRoot(e);
       return this._root!;

@@ -152,15 +152,24 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
       succ = x = x.lChild!;
     } else {
       //随机使用前驱或后继 消除移除过程中的偏斜
-      w = Math.random() > 0.5 ? this.succ(w)! : this.pred(w)!;
+      const useSucc = true;
+      w = useSucc ? this.succ(w)! : this.pred(w)!;
       const warp = w.data;
       w.data = x.data;
       x.data = warp;
       const u = w.parent!;
-      if (BinNode.Equal(u.data.key, x.data.key, this.comparerEqual)) {
-        u.rChild = succ = w.rChild;
+      if (useSucc) {
+        if (BinNode.Equal(u.data.key, x.data.key, this.comparerEqual)) {
+          u.rChild = succ = w.rChild;
+        } else {
+          u.lChild = succ = w.rChild;
+        }
       } else {
-        u.lChild = succ = w.rChild;
+        if (BinNode.Equal(u.data.key, x.data.key, this.comparerEqual)) {
+          u.lChild = succ = w.lChild;
+        } else {
+          u.rChild = succ = w.lChild;
+        }
       }
     }
     hot = w.parent;

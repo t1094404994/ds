@@ -34,7 +34,7 @@ export default class AVLTree<T> extends BinSearchTree<T> {
   public remove(e: K): boolean {
     const x = this.search(e);
     if (!x) return false;
-    this.removeAt(x, this._hot);
+    this.removeAt(x);
     this._size--;
     //向上逐层检查
     for (let g = this._hot; g; g = g!.parent) {

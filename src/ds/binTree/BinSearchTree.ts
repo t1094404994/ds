@@ -132,7 +132,7 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
     if (!x) {
       return false;
     }
-    this.removeAt(x, this._hot);
+    this.removeAt(x);
     this._size--;
     this.updateHeightAbove(this._hot!);
     return true;
@@ -140,50 +140,32 @@ export default class BinSearchTree<K> extends BinTree<Entry<K>> {
 
   //TODO 删除全部
 
-  public removeAt(
-    x: BinNode<Entry<K>>,
-    hot: BinNode<Entry<K>> | null
-  ): BinNode<Entry<K>> | null {
+  public removeAt(x: BinNode<Entry<K>>): BinNode<Entry<K>> | null {
     let w = x;
     let succ: BinNode<Entry<K>> | null = null;
     if (!HasLChild(x)) {
-      succ = x = x.rChild!;
+      succ = x.rChild;
     } else if (!HasRChild(x)) {
-      succ = x = x.lChild!;
+      succ = x.lChild;
     } else {
-      //随机使用前驱或后继 消除移除过程中的偏斜
-      const useSucc = true;
-      w = useSucc ? this.succ(w)! : this.pred(w)!;
+      w = this.succ(w)!;
       const warp = w.data;
       w.data = x.data;
       x.data = warp;
-      const u = w.parent!;
-      if (useSucc) {
-        if (BinNode.Equal(u.data.key, x.data.key, this.comparerEqual)) {
-          u.rChild = succ = w.rChild;
-        } else {
-          u.lChild = succ = w.rChild;
-        }
-      } else {
-        if (BinNode.Equal(u.data.key, x.data.key, this.comparerEqual)) {
-          u.lChild = succ = w.lChild;
-        } else {
-          u.rChild = succ = w.lChild;
-        }
-      }
+      succ = w.rChild;
     }
-    hot = w.parent;
+    this._hot = w.parent;
     if (succ) {
-      succ.parent = hot;
-      if (hot && IsLChild(w)) {
-        hot.lChild = succ;
-      } else if (hot && IsRChild(w)) {
-        hot.rChild = succ;
+      succ.parent = this._hot;
+      if (this._hot && IsLChild(w)) {
+        this._hot.lChild = succ;
+      } else if (this._hot && IsRChild(w)) {
+        this._hot.rChild = succ;
       }
     }
     w.dispose();
     //没有父节点则说明删除的是根节点
-    if (!hot) {
+    if (!this._hot) {
       this._root = succ;
     }
     return succ;

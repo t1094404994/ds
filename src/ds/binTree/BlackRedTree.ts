@@ -9,6 +9,7 @@ import BinNode, {
   HasLChild,
   HasRChild,
   IsLChild,
+  IsLeaf,
   IsRoot,
   RBColor,
   stature,
@@ -72,7 +73,8 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
   private solveDoubleBlack(r: BinNode<Entry<T>> | null): void {
     const p = r ? r.parent : this._hot;
     if (!p) return;
-    const s = IsLChild(r!) ? p.rChild! : p.lChild!;
+    //原黑节点x的兄弟 记作s 必然非空,x的父亲记作p
+    const s = r === p.lChild ? p.rChild! : p.lChild!;
     if (IsBlack(s)) {
       let t: BinNode<Entry<T>> | null = null;
       if (HasLChild(s) && IsRed(s.lChild)) {
@@ -84,7 +86,6 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
       if (t) {
         const oldColor = p.color;
         const b = this.rotateAt(t);
-        this.replaceParent(b, p);
         if (HasLChild(b)) {
           b.lChild!.color = RBColor.RB_BLACK;
           this.updateHeight(b.lChild!);
@@ -95,12 +96,14 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
         }
         b.color = oldColor;
         this.updateHeight(b);
+        return;
       } else {
         s.color = RBColor.RB_RED;
         s.height--;
         //BB-2R
         if (IsRed(p)) {
           p.color = RBColor.RB_BLACK;
+          return;
         }
         //BB-2B
         else {
@@ -111,9 +114,9 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
     } else {
       //BB-3
       s.color = RBColor.RB_BLACK;
+      p.color = RBColor.RB_RED;
       const t = IsLChild(s) ? s.lChild : s.rChild;
       this.rotateAt(t!);
-      // this.replaceParent(b, p);
       this._hot = p;
       this.solveDoubleBlack(r);
     }
@@ -132,7 +135,8 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
       this.insertAsRoot(e);
       return this._root!;
     } else {
-      const x = new BinNode<Entry<T>>(e, this._hot);
+      //插入新节点 红黑结构高度默认为-1
+      const x = new BinNode<Entry<T>>(e, this._hot, null, null, -1);
       if (BinNode.Less(e.key, this._hot!.data.key, this.comparerLess)) {
         this._hot!.lChild = x;
       } else {
@@ -153,19 +157,14 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
   public remove(e: K): boolean {
     const x = this.search(e);
     if (!x) return false;
-    const r = this.removeAt(x, this._hot)!;
-    this._size--;
-    if (this.size === 0) {
-      return true;
-    }
+    let r = this.removeAt(x)!;
+    if (0 >= --this._size) return true;
     if (!this._hot) {
       this._root!.color = RBColor.RB_BLACK;
       this.updateHeight(this._root!);
       return true;
     }
-    if (BlackUpdateHeight(this._hot)) {
-      return true;
-    }
+    if (BlackUpdateHeight(this._hot)) return true;
     if (IsRed(r)) {
       r.color = RBColor.RB_BLACK;
       r.height++;
@@ -173,5 +172,39 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
     }
     this.solveDoubleBlack(r);
     return true;
+  }
+
+  //检查红黑树性质
+  public checkRBTree(): boolean {
+    if (!this._root) return true;
+    if (!IsBlack(this._root)) {
+      return false;
+    }
+    let flag = true;
+    let currentHeight: number | null = null;
+    this.travIn((x) => {
+      if (IsRed(x)) {
+        if (IsRed(x.lChild) || IsRed(x.rChild)) {
+          flag = false;
+        }
+      }
+      //叶子节点黑深度相同
+      if (IsLeaf(x)) {
+        let height = 0;
+        let leaf: BinNode<Entry<T>> | null = x;
+        while (leaf) {
+          if (IsBlack(leaf)) {
+            height++;
+          }
+          leaf = leaf.parent;
+        }
+        if (currentHeight === null) {
+          currentHeight = height;
+        } else if (currentHeight !== height) {
+          flag = false;
+        }
+      }
+    });
+    return flag;
   }
 }

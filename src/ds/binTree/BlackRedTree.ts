@@ -157,7 +157,7 @@ export default class BlackRedTree<T> extends BinSearchTree<T> {
   public remove(e: K): boolean {
     const x = this.search(e);
     if (!x) return false;
-    let r = this.removeAt(x)!;
+    const r = this.removeAt(x)!;
     if (0 >= --this._size) return true;
     if (!this._hot) {
       this._root!.color = RBColor.RB_BLACK;

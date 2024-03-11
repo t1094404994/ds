@@ -1,20 +1,26 @@
-import BinNode from "./BinNode";
-import Entry from "../entry/Entry";
-
-type Node = BinNode<Entry<Array<number>>>;
-//Kd树节点
-interface KDNode {
-  //当前节点包含的点
-  nodes: Array<Node>;
-  //左孩子
-  lc: KDNode | null;
-  //右孩子
-  rc: KDNode | null;
-  //划分维度
-  splitN?: number;
-  //划分值
-  splitLine?: number;
+//叶节点
+interface LeafNode {
+  data: Array<number>;
 }
+//创建叶节点
+function CreatLeaefNode(data: Array<number>): LeafNode {
+  return { data };
+}
+
+//一般节点
+interface Node {
+  //左孩子
+  lc: Node | LeafNode;
+  //右孩子
+  rc: Node | LeafNode;
+  //划分维度
+  splitN: number;
+  //划分值
+  splitLine: number;
+}
+
+//kd树节点
+type KdNode = Node | LeafNode;
 
 /**
  * 使用哪个维度进行划分
@@ -23,48 +29,30 @@ interface KDNode {
  * @returns
  */
 function Even(n: number, d: number): number {
-  return n % d;
-}
-
-/**
- * 创建kd树节点
- */
-function CreateKdNode(
-  nodes: Array<Node>,
-  splitN?: number,
-  splitLine?: number
-): KDNode {
-  return {
-    nodes,
-    splitN,
-    splitLine,
-    lc: null,
-    rc: null,
-  };
-}
-
-/**
- * 是否是叶子节点
- * @param node 节点
- * @returns
- */
-function IsLeaf(node: KDNode): boolean {
-  return node.lc === null && node.rc === null;
+  return d % n;
 }
 
 /**
  * 寻找中位数
  */
-function FindMedian(p: Array<Node>, n: number): number {
-  return 0;
+function FindMedian(p: Array<Array<number>>, n: number): number {
+  //TODO use quick select
+  return p[Math.floor(p.length / 2)][n];
 }
 
 /**
  * 分割点集
  */
-function Divide(p: Array<Node>, splitN: number, splitLine: number) {
-  const P1: Array<Node> = [];
-  const P2: Array<Node> = [];
+function Divide(p: Array<Array<number>>, splitN: number, splitLine: number) {
+  const P1: Array<Array<number>> = [];
+  const P2: Array<Array<number>> = [];
+  for (let i = 0; i < p.length; i++) {
+    if (p[i][splitN] < splitLine) {
+      P1.push(p[i]);
+    } else {
+      P2.push(p[i]);
+    }
+  }
   return { P1, P2 };
 }
 /**
@@ -72,15 +60,20 @@ function Divide(p: Array<Node>, splitN: number, splitLine: number) {
  * @param p 当前点集
  * @param d 当前深度
  */
-export function buildKdTree(p: Array<Node>, n: number, d: number = 0): KDNode {
-  if (p.length === 0) throw new Error("点集不能为空");
-  else if (p.length === 1) return CreateKdNode(p);
-  const root = CreateKdNode(p, Even(n, d));
-  root.splitLine = FindMedian(p, root.splitN!);
-  const { P1, P2 } = Divide(p, root.splitN!, root.splitLine!);
-  root.lc = buildKdTree(P1, n, d + 1);
-  root.rc = buildKdTree(P2, n, d + 1);
-  return root;
+export function buildKdTree(
+  p: Array<Array<number>>,
+  n: number,
+  d: number = 0
+): KdNode {
+  if (p.length === 0) {
+    throw new Error("点集不能为空");
+  } else if (p.length === 1) return CreatLeaefNode(p[0]);
+  const splitN = Even(n, d);
+  const splitLine = FindMedian(p, splitN);
+  const { P1, P2 } = Divide(p, splitN, splitLine);
+  const lc = buildKdTree(P1, n, d + 1);
+  const rc = buildKdTree(P2, n, d + 1);
+  return { lc, rc, splitN, splitLine };
 }
 
 //节点和区间的关系
@@ -92,34 +85,60 @@ enum Relation {
   //不相交
   DISJOINT,
 }
-//节点的左右孩子和区间的关系
-function IsContainedR(v: KDNode | null, R: Array<[number, number]>): Relation {
+
+//叶节点和区间的关系
+function LeafIsContainedR(v: LeafNode, R: Array<[number, number]>): Relation {
+  const data = v.data;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i] < R[i][0] || data[i] > R[i][1]) {
+      return Relation.DISJOINT;
+    }
+  }
   return Relation.CONTAINED;
 }
 
-//test
-function report(v: KDNode) {
-  //
+//节点的左右孩子和区间的关系
+function IsContainedR(
+  v: Node,
+  R: Array<[number, number]>
+): [Relation, Relation] {
+  const splitN = v.splitN;
+  const splitLine = v.splitLine;
+  const [a, b] = R[splitN];
+  let leftRelation = Relation.DISJOINT;
+  if (splitLine >= a) {
+    leftRelation = Relation.INTERSECTS;
+  }
+  let rightRelation = Relation.DISJOINT;
+  if (splitLine < b) {
+    rightRelation = Relation.INTERSECTS;
+  }
+  return [leftRelation, rightRelation];
 }
-//节点是否和区间相交
+
+//test
+function report(v: KdNode) {
+  console.log(v);
+}
 /**
  * 搜索kd树
  */
-export function kdSearch(v: KDNode, R: Array<[number, number]>) {
-  if (IsLeaf(v)) {
-    if (IsContainedR(v, R) === Relation.CONTAINED) {
+export function kdSearch(v: KdNode, R: Array<[number, number]>) {
+  if ("data" in v) {
+    if (LeafIsContainedR(v, R) === Relation.CONTAINED) {
       report(v);
     }
     return;
   }
-  if (IsContainedR(v.lc, R) === Relation.CONTAINED) {
-    report(v.lc!);
-  } else if (IsContainedR(v.lc, R) === Relation.INTERSECTS) {
-    kdSearch(v.lc!, R);
+  const [leftRelation, rightRelation] = IsContainedR(v, R);
+  if (leftRelation === Relation.CONTAINED) {
+    report(v.lc);
+  } else if (leftRelation === Relation.INTERSECTS) {
+    kdSearch(v.lc, R);
   }
-  if (IsContainedR(v.rc, R) === Relation.CONTAINED) {
-    report(v.rc!);
-  } else if (IsContainedR(v.rc, R) === Relation.INTERSECTS) {
-    kdSearch(v.rc!, R);
+  if (rightRelation === Relation.CONTAINED) {
+    report(v.rc);
+  } else if (rightRelation === Relation.INTERSECTS) {
+    kdSearch(v.rc, R);
   }
 }

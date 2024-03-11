@@ -47,7 +47,7 @@ import Entry from "@/ds/entry/Entry";
 //测试红黑树
 function testRBTree() {
   const tree = new BlackRedTree<string>();
-  const testNum = 1000;
+  const testNum = 10000;
   console.time("treebuild");
   for (let i = 0; i < testNum; i++) {
     const key = Math.round(Math.random() * testNum);

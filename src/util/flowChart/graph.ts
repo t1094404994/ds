@@ -574,6 +574,7 @@ export default class FlowChart extends Graph<VertexData, EdgeData> {
     const eArr: Array<{ i: number; j: number; edgeData: Edge<EdgeData> }> = [];
     this.E.forEach((line, i) => {
       line.forEach((e, j) => {
+        console.log(e);
         const edgeData = this.exists(i, j);
         if (edgeData) {
           eArr.push({ i, j, edgeData });

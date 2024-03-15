@@ -72,6 +72,7 @@ export default class Controller {
     this.flowChart = new FlowChart();
     this.gridGraph = new GridGraph(this.gridConfig);
     this._inOperation = false;
+    console.log("data init", this.data);
   }
 
   private initBind() {
@@ -253,6 +254,7 @@ export default class Controller {
     edgeDataArr: Array<EdgeData>,
     edges: Array<EdgeIJ>
   ) => {
+    console.log("nowGridIndex", nowGridIndex);
     pathArr.forEach((path, index) => {
       const edgedata = edgeDataArr[index];
       edgedata.gridPath = path;

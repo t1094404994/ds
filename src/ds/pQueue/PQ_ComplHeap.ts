@@ -45,7 +45,7 @@ enum CompareResult {
 //比较函数
 type CompareFun<T> = (a: T, b: T) => CompareResult;
 
-export class PQ_ComplHeap<T> {
+export default class PQ_ComplHeap<T> {
   private _elem: Array<T>;
   private compareFun: CompareFun<T>;
   constructor(compareFun: CompareFun<T>, A?: Array<T>, n?: number) {
